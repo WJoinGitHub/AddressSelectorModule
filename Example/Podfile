@@ -1,0 +1,13 @@
+use_frameworks!
+
+platform :ios, '10.0'
+
+target 'AddressSelectorModule_Example' do
+  pod 'AddressSelectorModule', :path => '../'
+
+  target 'AddressSelectorModule_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end

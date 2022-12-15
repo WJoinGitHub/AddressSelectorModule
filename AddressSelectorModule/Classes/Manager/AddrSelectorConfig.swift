@@ -1,0 +1,42 @@
+//
+//  AddressSelectorConfig.swift
+//  AddressSelectorModule
+//
+//  Created by tofuls on 2022/12/15.
+//
+
+import UIKit
+
+public class AddrSelectorConfig: NSObject {
+    static public let share: AddrSelectorConfig = AddrSelectorConfig()
+    
+    public var defaultSelectedColor: UIColor = RGBA(r: 255, g: 99, b: 8, a: 1)
+    public var defaultTitleColor: UIColor = UIColor.black
+    public var defaultTitleFont: UIFont = PingFangSC_M(16)
+    public var defaultCellColor: UIColor = RGBA(r: 51, g: 51, b: 51, a: 1)
+    public var defaultCellFont: UIFont = PingFangSC_M(14)
+    
+    public var areaPath: String?
+    
+    class private func RGBA(r: CGFloat, g: CGFloat, b: CGFloat, a: CGFloat) -> UIColor {
+        return UIColor.init(red: r/255.0, green: g/255.0, blue: b/255.0, alpha: a)
+    }
+    
+    //MARK: - 颜色方法
+    class private func PingFangSC_R(_ size: CGFloat) -> UIFont {
+        return FontName(name: "PingFangSC-Regular", size: size)
+    }
+    class private func PingFangSC_L(_ size: CGFloat) -> UIFont {
+        return FontName(name: "PingFangSC-Light", size: size)
+    }
+    class private func PingFangSC_M(_ size: CGFloat) -> UIFont {
+        return FontName(name: "PingFangSC-Medium", size: size)
+    }
+    class private func PingFangSC_S(_ size: CGFloat) -> UIFont {
+        return FontName(name: "PingFangSC-Semibold", size: size)
+    }
+    
+    class private func FontName(name: String, size: CGFloat) -> UIFont {
+        return UIFont(name: name, size: size) ?? UIFont.systemFont(ofSize: size)
+    }
+}

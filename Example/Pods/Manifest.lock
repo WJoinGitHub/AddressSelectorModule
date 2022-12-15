@@ -1,0 +1,16 @@
+PODS:
+  - AddressSelectorModule (0.1.0)
+
+DEPENDENCIES:
+  - AddressSelectorModule (from `../`)
+
+EXTERNAL SOURCES:
+  AddressSelectorModule:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  AddressSelectorModule: 65a45641d9d7fbe6419a12bf6c80aa46ecc0e901
+
+PODFILE CHECKSUM: 11e99d3fb7b034374a0a820ce61d021c7a541e00
+
+COCOAPODS: 1.11.3
