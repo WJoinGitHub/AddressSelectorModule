@@ -14,7 +14,7 @@ internal let Screen_H: CGFloat = UIScreen.main.bounds.height
 
 public class LWAddressVC: UIViewController {
 
-    var backLocationStringController: ((String, String, String, String, String)->())?
+    public var selectedAddrAction: ((String, String, String, String, String)->())?
 
     lazy var containV: LWAddressPickView = {
         let view = LWAddressPickView(frame: CGRect(x: 0, y: Screen_H-550, width: Screen_W, height: 550))
@@ -23,7 +23,7 @@ public class LWAddressVC: UIViewController {
         }
         /// 成功选择后将数据回调,并推出视图
         view.backLocationString = { [weak self] (address, province, city, area, sheet) in
-            self?.backLocationStringController?(address, province, city, area, sheet)
+            self?.selectedAddrAction?(address, province, city, area, sheet)
             self?.onClickCancel()
         }
         return view
