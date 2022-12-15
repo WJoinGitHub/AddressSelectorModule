@@ -17,7 +17,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         let btn = UIButton(type: .custom)
         btn.frame = CGRect(x: 0, y: 0, width: 200, height: 50)
-        btn.center = self.view.center
+        btn.center = CGPoint(x: self.view.center.x, y: self.view.center.y / 2)
         btn.backgroundColor = UIColor.init(red: 225/255.0, green: 225/255.0, blue: 225/255.0, alpha: 1)
         btn.setTitle("地址选择器", for: .normal)
         btn.setTitleColor(.systemBlue, for: .normal)

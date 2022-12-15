@@ -1,29 +1,20 @@
-# AddressSelectorModule
+# 欢迎使用 AddressSelectorModule
 
-[![CI Status](https://img.shields.io/travis/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/AddressSelectorModule.svg?style=flat)](https://travis-ci.org/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/AddressSelectorModule)
-[![Version](https://img.shields.io/cocoapods/v/AddressSelectorModule.svg?style=flat)](https://cocoapods.org/pods/AddressSelectorModule)
-[![License](https://img.shields.io/cocoapods/l/AddressSelectorModule.svg?style=flat)](https://cocoapods.org/pods/AddressSelectorModule)
-[![Platform](https://img.shields.io/cocoapods/p/AddressSelectorModule.svg?style=flat)](https://cocoapods.org/pods/AddressSelectorModule)
+**模块内置行政数据，数据来源https://xiangyuecn.gitee.io/areacity-jsspider-statsgov/**
 
-## Example
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+AddressSelectorModule是一个四级地址选择器，更新于2022.12.15。最近刚开始弄组件化，比较简陋
 
-## Requirements
 
-## Installation
-
-AddressSelectorModule is available through [CocoaPods](https://cocoapods.org). To install
-it, simply add the following line to your Podfile:
-
-```ruby
-pod 'AddressSelectorModule'
+## AddrSelectorConfig
+选择器配置。主要是颜色和字体
 ```
-
-## Author
-
-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, 704276893@qq.com
-
-## License
-
-AddressSelectorModule is available under the MIT license. See the LICENSE file for more info.
+    public var defaultSelectedColor: UIColor = RGBA(r: 255, g: 99, b: 8, a: 1)
+    public var defaultTitleColor: UIColor = UIColor.black
+    public var defaultTitleFont: UIFont = PingFangSC_M(16)
+    public var defaultCellColor: UIColor = RGBA(r: 51, g: 51, b: 51, a: 1)
+    public var defaultCellFont: UIFont = PingFangSC_M(14)
+    
+    public var areaPath: String?
+```
+areaPath 地区数据，json文件。参考https://xiangyuecn.gitee.io/areacity-jsspider-statsgov/
