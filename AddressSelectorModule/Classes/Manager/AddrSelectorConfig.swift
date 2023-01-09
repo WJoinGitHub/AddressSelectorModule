@@ -39,4 +39,78 @@ public class AddrSelectorConfig: NSObject {
     class private func FontName(name: String, size: CGFloat) -> UIFont {
         return UIFont(name: name, size: size) ?? UIFont.systemFont(ofSize: size)
     }
+    
+    
+    class public func getLocationStr(proviceCode: String, cityCode: String, areaCode: String, streetCode: String, cb: ((String, String, String, String) -> Void)?) {
+        var allDict: [String: Any] = [:]
+        var jsonPath = AddrSelectorConfig.share.areaPath
+        if jsonPath?.isEmpty ?? true {
+            jsonPath = ResoureUtil.getResourcePath("area_format_object", ofType: "json")
+        }
+        if let path = jsonPath {
+            do {
+                let data = try NSData.init(contentsOfFile: path) as Data
+                if let dict = self.dataToDictionary(data: data) {
+                    allDict = dict
+                }
+            } catch {
+                print("error：获取行政区数据失败。")
+            }
+        } else {
+            print("error：获取行政区数据失败。原因：url为空")
+        }
+        let locationModel = CountryModel(dict: allDict)
+        var provice = ""
+        for addrInfo in locationModel.provinces {
+            if addrInfo.code == proviceCode {
+                provice = addrInfo.name ?? ""
+                break
+            }
+        }
+        let proviceModel = locationModel.provinceDict[provice]
+        var city = ""
+        if let proArr = proviceModel?.cities {
+            for addrInfo in proArr {
+                if addrInfo.code == cityCode {
+                    city = addrInfo.name ?? ""
+                    break
+                }
+            }
+        }
+        let cityModel = proviceModel?.citiesDict[city]
+        var area = ""
+        if let cityArr = cityModel?.areas {
+            for addrInfo in cityArr {
+                if addrInfo.code == areaCode {
+                    area = addrInfo.name ?? ""
+                    break
+                }
+            }
+        }
+        let areaModel = cityModel?.areasDict[area]
+        var street = ""
+        if let strArr = areaModel?.streets {
+            for addrInfo in strArr {
+                if addrInfo.code == streetCode {
+                    street = addrInfo.name ?? ""
+                    break
+                }
+            }
+        }
+        cb?(provice, city, area, street)
+    }
+    
+    class private func dataToDictionary(data: Data) -> Dictionary<String, Any>? {
+        do {
+            let json = try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+
+            let dic = json as! Dictionary<String, Any>
+
+            return dic
+
+        } catch _ {
+            print("失败")
+            return nil
+        }
+    }
 }

@@ -19,6 +19,8 @@ enum LWLocationPickViewTableViewType {
 class LWAddressPickView: UIView {
     /// 返回数据回调
     var backLocationString: ((String, String, String, String, String)->())?
+    /// 返回数据回调
+    var backLocationModel: ((String, AddrInfoModel, AddrInfoModel, AddrInfoModel, AddrInfoModel)->())?
     /// 推出回调
     var backOnClickCancel: (()->())?
 
@@ -33,9 +35,9 @@ class LWAddressPickView: UIView {
                 self.leftLabel.isHidden = true
                 /// 将所有选中数据清空
                 self.provincesModel = nil
-                self.selectedProvince = ""
-                self.selectedCity = ""
-                self.selectedArea = ""
+                self.selectedProvince = nil
+                self.selectedCity = nil
+                self.selectedArea = nil
                 self.cityModel = nil
                 // 将titleSV中所有button的title重置
                 // 并将第一个button设置为选中状态,已保证选择城市后button下的横线有滚动效果.
@@ -56,8 +58,8 @@ class LWAddressPickView: UIView {
                 self.titleSV.isHidden = false
                 self.leftLabel.isHidden = false
                 /// 将省份选择保留,将城市与地区数据清空
-                self.selectedCity = ""
-                self.selectedArea = ""
+                self.selectedCity = nil
+                self.selectedArea = nil
                 self.cityModel = nil
                 /// 通过修改titleSV中button的选中状态来修改它的颜色
                 for button in buttonArr {
@@ -134,45 +136,45 @@ class LWAddressPickView: UIView {
     /// titleSV上的4个button,通过array保存,更好操作
     private var buttonArr = [UIButton]()
     /// 已选中的省份
-    var selectedProvince = "" {
+    var selectedProvince: AddrInfoModel? {
         didSet{
             /// 当选中赋值时,将titleSV上第一个button.title改为省份名
             for button in buttonArr {
                 if button.tag == 0 {
-                    button.setTitle(selectedProvince, for: .normal)
+                    button.setTitle(selectedProvince?.name, for: .normal)
                 }
             }
         }
     }
     /// 已选中城市
-    var selectedCity = "" {
+    var selectedCity: AddrInfoModel? {
         didSet{
             /// 当选中赋值时,将titleSV上第二个button.title改为城市名
             for button in buttonArr {
                 if button.tag == 1 {
-                    button.setTitle(selectedCity, for: .normal)
+                    button.setTitle(selectedCity?.name, for: .normal)
                 }
             }
         }
     }
     /// 已选中地区
-    var selectedArea = "" {
+    var selectedArea: AddrInfoModel? {
         didSet{
             /// 当选中赋值时,将titleSV上第二个button.title改为城市名
             for button in buttonArr {
                 if button.tag == 2 {
-                    button.setTitle(selectedArea, for: .normal)
+                    button.setTitle(selectedArea?.name, for: .normal)
                 }
             }
         }
     }
     /// 已选中地区
-    var selectedSteet = "" {
+    var selectedSteet: AddrInfoModel? {
         didSet {
             /// 当选中赋值时,将titleSV上第三个button.title改为城市名
             for button in buttonArr {
                 if button.tag == 3 {
-                    button.setTitle(selectedSteet, for: .normal)
+                    button.setTitle(selectedSteet?.name, for: .normal)
                 }
             }
         }
@@ -186,7 +188,7 @@ class LWAddressPickView: UIView {
     /// 街道数据
     var areaModel: AreaModel?
     /// 当前tableView使用的数据源
-    var dataArray: Array<String> = []
+    var dataArray: Array<AddrInfoModel> = []
     
     let titleLabel: UILabel = {
         let label = UILabel(frame: CGRect(x: 0, y: 0, width: 180, height: 24))
@@ -360,16 +362,30 @@ class LWAddressPickView: UIView {
     }
     
     /// 点击热门城市中的城市
-    func setHotCityData(province: String,city: String){
+    func setHotCityData(province: String, city: String){
         self.provincesModel = self.locationModel?.provinceDict[province]
-        self.selectedProvince = province
+        if let arr = self.locationModel?.provinces {
+            for addrInfo in arr {
+                if addrInfo.name == province {
+                    self.selectedProvince = addrInfo
+                    break
+                }
+            }
+        }
         self.cityModel = self.provincesModel?.citiesDict[city]
-        self.selectedCity = city
+        if let arr = self.provincesModel?.cities {
+            for addrInfo in arr {
+                if addrInfo.name == city {
+                    self.selectedCity = addrInfo
+                    break
+                }
+            }
+        }
     }
     
     /// 从area.plist获取全部地区数据
     func initLocationData() {
-        var arr: [Any] = []
+        var allDict: [String: Any] = [:]
         var jsonPath = AddrSelectorConfig.share.areaPath
         if jsonPath?.isEmpty ?? true {
             jsonPath = ResoureUtil.getResourcePath("area_format_object", ofType: "json")
@@ -378,9 +394,7 @@ class LWAddressPickView: UIView {
             do {
                 let data = try NSData.init(contentsOfFile: path) as Data
                 if let dict = self.dataToDictionary(data: data) {
-                    for key in dict.keys.sorted() {
-                        arr.append(dict[key]!)
-                    }
+                    allDict = dict
                 }
             } catch {
                 print("error：获取行政区数据失败。")
@@ -388,7 +402,7 @@ class LWAddressPickView: UIView {
         } else {
             print("error：获取行政区数据失败。原因：url为空")
         }
-        locationModel = CountryModel(Arr: arr)
+        locationModel = CountryModel(dict: allDict)
         dataArray = locationModel?.provinces ?? []
     }
     
@@ -427,7 +441,7 @@ extension LWAddressPickView: UITableViewDelegate, UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCell(withIdentifier:  LWAddressPickViewTableViewCell.identifier) as? LWAddressPickViewTableViewCell else {
             return LWAddressPickViewTableViewCell()
         }
-        cell.label.text = self.dataArray[indexPath.row - 1]
+        cell.label.text = self.dataArray[indexPath.row - 1].name
         return cell
     }
     
@@ -436,30 +450,32 @@ extension LWAddressPickView: UITableViewDelegate, UITableViewDataSource {
         switch tableViewType {
         case .provinces:
             /// 当前为选择省份状态时,保存选中省份,刷新状态为选择城市
-            selectedProvince = (self.locationModel?.provinces[indexPath.row - 1])!
-            self.provincesModel = self.locationModel?.provinceDict[selectedProvince]
+            selectedProvince = self.locationModel?.provinces[indexPath.row - 1]
+            self.provincesModel = self.locationModel?.provinceDict[selectedProvince?.name ?? ""]
             self.tableViewType = .city
         case .city:
             /// 当前为选择城市状态时,保存选中城市,刷新状态为选择地区
-            selectedCity = (self.provincesModel?.cities[indexPath.row - 1])!
-            self.cityModel = self.provincesModel?.citiesDict[selectedCity]
+            selectedCity = self.provincesModel?.cities[indexPath.row - 1]
+            self.cityModel = self.provincesModel?.citiesDict[selectedCity?.name ?? ""]
             self.tableViewType = .area
         case .area:
             /// 当前为选择地区状态时,保存选中地区,执行回调block.将选中数据回调
             selectedArea = self.dataArray[indexPath.row - 1]
-            self.areaModel = self.cityModel?.areasDict[selectedArea]
+            self.areaModel = self.cityModel?.areasDict[selectedArea?.name ?? ""]
             self.tableViewType = .street
         case .street:
-            selectedSteet = self.dataArray[indexPath.row-1]
+            selectedSteet = self.dataArray[indexPath.row - 1]
             self.tableViewType = .complete
-            let selectLocation = selectedProvince + " " + selectedCity + " " + selectedArea + " " + selectedSteet
-            backLocationString?(selectLocation, selectedProvince, selectedCity, selectedArea, selectedSteet)
+            let selectLocation = "\(selectedProvince?.name ?? "") \(selectedCity?.name ?? "") \(selectedArea?.name ?? "") \(selectedSteet?.name ?? "")"
+            backLocationString?(selectLocation, selectedProvince?.name ?? "", selectedCity?.name ?? "", selectedArea?.name ?? "", selectedSteet?.name ?? "")
+            backLocationModel?(selectLocation, selectedProvince!, selectedCity!, selectedArea!, selectedSteet!)
             break
         case .complete:
-            selectedSteet = self.dataArray[indexPath.row-1]
+            selectedSteet = self.dataArray[indexPath.row - 1]
             self.tableViewType = .complete
-            let selectLocation = selectedProvince + " " + selectedCity + " " + selectedArea + " " + selectedSteet
-            backLocationString?(selectLocation, selectedProvince, selectedCity, selectedArea, selectedSteet)
+            let selectLocation = "\(selectedProvince?.name ?? "") \(selectedCity?.name ?? "") \(selectedArea?.name ?? "") \(selectedSteet?.name ?? "")"
+            backLocationString?(selectLocation, selectedProvince?.name ?? "", selectedCity?.name ?? "", selectedArea?.name ?? "", selectedSteet?.name ?? "")
+            backLocationModel?(selectLocation, selectedProvince!, selectedCity!, selectedArea!, selectedSteet!)
             break
         }
 

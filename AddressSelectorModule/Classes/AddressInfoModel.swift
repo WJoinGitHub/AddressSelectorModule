@@ -10,20 +10,19 @@ import Foundation
 
 public struct CountryModel {
     var provinceDict: Dictionary<String, ProvinceModel> = [:]
-    var provinces: Array<String> = []
-    init(Arr: [Any]) {
-        for obj in Arr {
-            if let dict = obj as? [String: Any] {
+    var provinces: Array<AddrInfoModel> = []
+    init(dict: [String: Any]) {
+        for key in dict.keys.sorted() {
+            var info = AddrInfoModel()
+            info.code = key
+            if let dict = dict[key] as? [String: Any] {
                 if dict.keys.contains("n") {
                     if let province = dict["n"] as? String {
-                        provinces.append(province)
+                        info.name = province
+                        provinces.append(info)
                         if dict.keys.contains("c") {
                             if let clDict = dict["c"] as? [String: Any] {
-                                var cArr: [Any] = []
-                                for key in clDict.keys.sorted() {
-                                    cArr.append(clDict[key]!)
-                                }
-                                let model = ProvinceModel(Arr: cArr)
+                                let model = ProvinceModel(dict: clDict)
                                 provinceDict[province] = model
                             }
                         }
@@ -36,21 +35,20 @@ public struct CountryModel {
 
 public struct ProvinceModel {
     var citiesDict: Dictionary<String, CityModel> = [:]
-    var cities: Array<String> = []
-    init(Arr: [Any]) {
-        for obj in Arr {
-            if let dict = obj as? [String: Any] {
+    var cities: Array<AddrInfoModel> = []
+    init(dict: [String: Any]) {
+        for key in dict.keys.sorted() {
+            var info = AddrInfoModel()
+            info.code = key
+            if let dict = dict[key] as? [String: Any] {
                 if dict.keys.contains("n") {
-                    if let province = dict["n"] as? String {
-                        cities.append(province)
+                    if let city = dict["n"] as? String {
+                        info.name = city
+                        cities.append(info)
                         if dict.keys.contains("c") {
                             if let clDict = dict["c"] as? [String: Any] {
-                                var cArr: [Any] = []
-                                for key in clDict.keys.sorted() {
-                                    cArr.append(clDict[key]!)
-                                }
-                                let model = CityModel(Arr: cArr)
-                                citiesDict[province] = model
+                                let model = CityModel(dict: clDict)
+                                citiesDict[city] = model
                             }
                         }
                     }
@@ -62,21 +60,20 @@ public struct ProvinceModel {
 
 public struct CityModel {
     var areasDict: Dictionary<String, AreaModel> = [:]
-    var areas: Array<String> = []
-    init(Arr: [Any]) {
-        for obj in Arr {
-            if let dict = obj as? [String: Any] {
+    var areas: Array<AddrInfoModel> = []
+    init(dict: [String: Any]) {
+        for key in dict.keys.sorted() {
+            var info = AddrInfoModel()
+            info.code = key
+            if let dict = dict[key] as? [String: Any] {
                 if dict.keys.contains("n") {
-                    if let province = dict["n"] as? String {
-                        areas.append(province)
+                    if let area = dict["n"] as? String {
+                        info.name = area
+                        areas.append(info)
                         if dict.keys.contains("c") {
                             if let clDict = dict["c"] as? [String: Any] {
-                                var cArr: [Any] = []
-                                for key in clDict.keys.sorted() {
-                                    cArr.append(clDict[key]!)
-                                }
-                                let model = AreaModel(Arr: cArr)
-                                areasDict[province] = model
+                                let model = AreaModel(dict: clDict)
+                                areasDict[area] = model
                             }
                         }
                     }
@@ -87,17 +84,25 @@ public struct CityModel {
 }
 
 public struct AreaModel {
-    var streets: Array<String> = []
-    init(Arr: [Any]) {
-        for obj in Arr {
-            if let dict = obj as? [String: Any] {
+    var streets: Array<AddrInfoModel> = []
+    init(dict: [String: Any]) {
+        for key in dict.keys.sorted() {
+            var info = AddrInfoModel()
+            info.code = key
+            if let dict = dict[key] as? [String: Any] {
                 if dict.keys.contains("n") {
-                    if let province = dict["n"] as? String {
-                        streets.append(province)
+                    if let street = dict["n"] as? String {
+                        info.name = street
+                        streets.append(info)
                     }
                 }
             }
         }
     }
+}
+
+public struct AddrInfoModel {
+    var name: String?
+    var code: String?
 }
 

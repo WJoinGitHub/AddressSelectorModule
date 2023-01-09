@@ -15,6 +15,7 @@ internal let Screen_H: CGFloat = UIScreen.main.bounds.height
 public class LWAddressVC: UIViewController {
 
     public var selectedAddrAction: ((String, String, String, String, String)->())?
+    public var selectedCodeAction: ((String, String, String, String, String)->())?
 
     lazy var containV: LWAddressPickView = {
         let view = LWAddressPickView(frame: CGRect(x: 0, y: Screen_H-550, width: Screen_W, height: 550))
@@ -22,8 +23,12 @@ public class LWAddressVC: UIViewController {
             self.onClickCancel()
         }
         /// 成功选择后将数据回调,并推出视图
-        view.backLocationString = { [weak self] (address, province, city, area, sheet) in
-            self?.selectedAddrAction?(address, province, city, area, sheet)
+        view.backLocationString = { [weak self] (address, province, city, area, street) in
+            self?.selectedAddrAction?(address, province, city, area, street)
+            self?.onClickCancel()
+        }
+        view.backLocationModel = { [weak self] (address, province, city, area, street) in
+            self?.selectedCodeAction?(address, province.code ?? "", city.code ?? "", area.code ?? "", street.code ?? "")
             self?.onClickCancel()
         }
         return view
@@ -72,7 +77,7 @@ public class LWAddressVC: UIViewController {
 
 }
 //MARK: - 转场动画delegate
-extension LWAddressVC:UIViewControllerTransitioningDelegate{
+extension LWAddressVC: UIViewControllerTransitioningDelegate {
     /// 推入动画
     private func animationController(forPresented presented: UIViewController, presenting: UIViewController, source: UIViewController) -> UIViewControllerAnimatedTransitioning? {
         let animated = LWAddressPickerPresentAnimated(type: .present)
